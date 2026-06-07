@@ -53,4 +53,11 @@ class RefundApiTest {
                 .andExpect(status().isFound())
                 .andExpect(header().string("Location", "/swagger-ui/index.html"));
     }
+
+    @Test
+    void health_returnsUp() throws Exception {
+        mockMvc.perform(get("/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
+    }
 }
