@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /** Maps exceptions to the consistent {@link ErrorResponse} envelope and correct HTTP codes. */
 @RestControllerAdvice
@@ -36,6 +37,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                 .body(new ErrorResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), "METHOD_NOT_ALLOWED",
                         "HTTP method " + ex.getMethod() + " is not supported for this endpoint."));
+    }
+
+    /** Unmapped paths / missing static resources (e.g. "/", favicon.ico) — a 404, not a server error. */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResource(NoResourceFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Resource not found."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
