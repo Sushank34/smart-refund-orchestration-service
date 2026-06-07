@@ -58,7 +58,9 @@ public class RefundService {
             }
         }
 
-        Payment payment = paymentRepository.findById(paymentId)
+        // Locked read: serializes concurrent refunds on the same payment so the over-refund
+        // guard and the balance update are not subject to a read-modify-write race.
+        Payment payment = paymentRepository.findByIdForUpdate(paymentId)
                 .orElseThrow(() -> ApiException.notFound("PAYMENT_NOT_FOUND",
                         "No payment with id " + paymentId));
 

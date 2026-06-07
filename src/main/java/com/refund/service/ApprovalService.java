@@ -29,7 +29,8 @@ public class ApprovalService {
     @Transactional
     public Refund approve(String refundId) {
         Refund refund = loadPending(refundId);
-        Payment payment = paymentRepository.findById(refund.getPaymentId())
+        // Locked read: serializes settlement against concurrent refunds on the same payment.
+        Payment payment = paymentRepository.findByIdForUpdate(refund.getPaymentId())
                 .orElseThrow(() -> ApiException.notFound("PAYMENT_NOT_FOUND",
                         "No payment with id " + refund.getPaymentId()));
 
