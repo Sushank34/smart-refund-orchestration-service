@@ -8,14 +8,27 @@ behind manual approval.
 Built with **Spring Boot 3 + JPA + H2 (in-memory)** — no external infrastructure
 to run.
 
+## Live demo
+
+| | |
+|---|---|
+| **Interactive API (Swagger UI)** | https://smart-refund-orchestration-service.onrender.com |
+| **Health** | https://smart-refund-orchestration-service.onrender.com/health |
+
+> Hosted on Render's free tier — it sleeps after ~15 min idle, so the **first
+> request may take ~30–60s** to cold-start, then responds normally.
+
 ---
 
 ## Quick start
 
 ```bash
 mvn spring-boot:run          # starts on http://localhost:8085
-mvn test                     # runs the full test suite (16 tests)
+mvn test                     # runs the full test suite (21 tests)
 ```
+
+Once running locally, the interactive API docs are at
+`http://localhost:8085/swagger-ui/index.html`.
 
 On startup the service seeds payments (all providers × all statuses × amounts
 €50–€5000) **and refund history** covering every edge case — pre-refunded
@@ -155,6 +168,8 @@ See [API.md](API.md) for the full endpoint reference and copy-paste curl command
 | `GET`  | `/refunds/{id}` | get a refund |
 | `POST` | `/refunds/{id}/approve` | approve a pending refund |
 | `POST` | `/refunds/{id}/reject` | reject a pending refund |
+| `GET`  | `/health` | liveness check → `{"status":"UP"}` |
+| `GET`  | `/` | redirects to the Swagger UI |
 
 Errors use a consistent envelope:
 ```json
@@ -172,9 +187,9 @@ src/main/java/com/refund/
 ├── repository/    PaymentRepository, RefundRepository (Spring Data JPA)
 ├── provider/      ProviderPolicy + Stripe/Adyen/LegacyPay impls + factory
 ├── service/       RefundService (engine), RiskService, ApprovalService, Money
-├── web/           PaymentController, RefundController, GlobalExceptionHandler, dto/
+├── web/           Payment/Refund/Health/Home controllers, GlobalExceptionHandler, dto/
 ├── exception/     ApiException
-└── config/        DataSeeder
+└── config/        DataSeeder, OpenApiConfig
 src/test/java/com/refund/
 ├── RefundServiceTest.java   one test per business rule / edge case
 └── RefundApiTest.java       HTTP status codes + error envelope
