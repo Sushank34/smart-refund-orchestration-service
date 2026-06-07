@@ -1,0 +1,10 @@
+# Render Blueprint — deploy as a free Docker web service.
+# In Render: New > Blueprint > connect this repo. Render reads this file.
+services:
+  - type: web
+    name: smart-refund-orchestration-service
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /payments
+    autoDeploy: true
